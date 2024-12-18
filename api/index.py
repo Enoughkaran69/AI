@@ -42,8 +42,8 @@ def initialize_model(model_name):
         model_name=model_name,
         generation_config=generation_config,
         system_instruction=(
-            "Use a friendly and funny tone, flirt, talk like Gen Z, "
-            "responses in minimum words."
+            "friendly and funny tone, flirt, talk like Gen Z, "
+            "minimum words."
         ),
     )
 
