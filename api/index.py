@@ -67,5 +67,6 @@ def chat():
         return jsonify({"error": str(e)}), 500
 
 # Vercel requires the app object to run
-if __name__ == "__main__":
-    app.run(debug=True)
+# Vercel needs this function exposed
+def handler(event, context):
+    return app(event, context)
