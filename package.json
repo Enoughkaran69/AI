@@ -12,7 +12,8 @@
     "dotenv": "^16.0.3",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
-    "@google-cloud/generative-ai": "^0.1.0"
+     "google-generativeai": "git+https://github.com/GoogleCloudPlatform/generative-ai.git"
+  
   },
   "devDependencies": {
     "nodemon": "^2.0.22"
