@@ -1,54 +1,71 @@
-const express = require("express");
-const genai = require("google-generativeai");
-const langdetect = require("langdetect");
+import google.generativeai as genai
+from flask import Flask, request, jsonify
 
-genai.configure(api_key=os.environ["GEMINI_API_KEY"])
+# Configure the API key
+genai.configure(api_key="AIzaSyDmBT57nfysG-6RTro2VNljwhMWKtN6tvs")
 
-const primaryModelName = "gemini-1.5-flash-8b";
-const fallbackModelName = "gemini-1.5";
+# Flask app
+app = Flask(__name__)
 
-const generationConfig = {
-    temperature: 1,
-    top_p: 0.95,
-    top_k: 40,
-    max_output_tokens: 8192,
-    response_mime_type: "text/plain",
-};
+# Define the initial and fallback model names
+primary_model_name = "gemini-1.5-flash-8b"
+fallback_model_name = "gemini-1.5"
 
-let currentModel = primaryModelName;
+# Define the generation configuration
+generation_config = {
+    "temperature": 1,
+    "top_p": 0.95,
+    "top_k": 40,
+    "max_output_tokens": 8192,
+    "response_mime_type": "text/plain",
+}
 
-const initializeModel = (modelName) => {
-    return new genai.GenerativeModel({
-        model_name: modelName,
-        generation_config: generationConfig,
-        system_instruction:
-            "Friendly and Funny tone, Gen Z style, minimum words.",
-    });
-};
+# Define the chat history
+initial_history = [
+    {"role": "user", "parts": ["hii bro"]},
+    {"role": "model", "parts": ["Hey bestie!  What's up? ✨\n"]},
+    {"role": "user", "parts": ["cute asf"]},
+    {"role": "model", "parts": ["OMG, thanks!  You're too kind!  🥰  Spill the tea.  What's good?\n"]},
+    {"role": "user", "parts": ["coffee?"]},
+    {"role": "model", "parts": ["Coffee, you say?  ☕️  Sounds like a vibe. "]},
+    {"role": "user", "parts": ["intresting"]},
+    {"role": "model", "parts": ["Yeah, pretty interesting, right?  😎 Whatcha into?\n"]},
+    {"role": "user", "parts": ["hindi me baat kre"]},
+    {"role": "model", "parts": ["thik hai aao hindi me baatein kre"]},
+    {"role": "user", "parts": ["tumhe kya pasand hai"]},
+    {"role": "model", "parts": ["tum pasand ho"]},
+]
 
-const app = express();
-app.use(express.json());
+# Function to initialize the model
+def initialize_model(model_name):
+    return genai.GenerativeModel(
+        model_name=model_name,
+        generation_config=generation_config,
+        system_instruction=(
+            "Use a friendly and funny tone, flirt, talk like Gen Z, "
+            "responses in minimum words."
+        ),
+    )
 
-app.post("/chat", async (req, res) => {
-    const { message } = req.body;
-    if (!message) {
-        return res.status(400).json({ error: "Message is required." });
-    }
+# Function to start a chat session
+def start_chat_session(model_name):
+    model = initialize_model(model_name)
+    return model.start_chat(history=initial_history)
 
-    try {
-        const chatSession = initializeModel(currentModel).startChat();
-        const response = await chatSession.sendMessage(message);
-        res.json({ reply: response.text });
-    } catch (error) {
-        if (error.message.toLowerCase().includes("quota")) {
-            currentModel = currentModel === primaryModelName ? fallbackModelName : primaryModelName;
-            res.json({ reply: "Quota exceeded. Switched to fallback model." });
-        } else {
-            res.status(500).json({ error: "Something went wrong." });
-        }
-    }
-});
+# Route for the chatbot
+@app.route("/api/chat", methods=["POST"])
+def chat():
+    data = request.json
+    user_input = data.get("message", "")
+    model_name = data.get("model_name", primary_model_name)
+    try:
+        # Initialize chat session
+        chat_session = start_chat_session(model_name)
+        response = chat_session.send_message(user_input)
+        return jsonify({"response": response.text})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
-app.listen(3000, () => {
-    console.log("Server running on port 3000");
-});
+# Vercel requires the app object to run
+if __name__ == "__main__":
+    app.run(debug=True)
