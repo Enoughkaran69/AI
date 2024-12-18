@@ -22,7 +22,7 @@ const initializeModel = (modelName) => {
         model_name: modelName,
         generation_config: generationConfig,
         system_instruction:
-            "Use a friendly and funny tone, talk like Gen Z, responses in minimum words.",
+            "Friendly and Funny tone, Gen Z style, minimum words.",
     });
 };
 
