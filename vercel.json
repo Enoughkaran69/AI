@@ -2,7 +2,7 @@
   "version": 2,
   "functions": {
     "api/index.py": {
-      "runtime": "python3.10" // Adjust the version as needed
+      "runtime": "python3.10" 
     }
   },
   "builds": [
